@@ -24,6 +24,7 @@ import Credentials from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"// to verify the password he will provide//
 import dbConnect from "@/lib/dbConnect"// to establsih connection to database
 import UserModel from "@/models/user.model"// to verify that signing user is even registered in databse//
+// import { MongoDBAdapter } from "@auth/mongodb-adapter";
 
 
 export const authOptions=NextAuth({
@@ -38,12 +39,17 @@ export const authOptions=NextAuth({
 
   providers: [
     Credentials({// Credentials is a method
+         // This name appears on the sign in form button (e.g. "Sign in with credentials")
+      name: "credentials",
+      id:"1",
       credentials: {
         // The lowercase credentials is a property/field definition object that tells
         //  Auth.js what input fields to show on the login form and how to handle them.
         email: { label: "Email", type:"email" },
         password: { label: "Password", type: "password" },
       },
+            // This function is called when user submits the sign-in form
+      // It receives the credentials from the form submission
       authorize: async function(credentials:any, request:any):Promise<any> {
         // It's a callback function that handles the actual authentication logic for credential-based login.
         await dbConnect()
@@ -67,19 +73,55 @@ export const authOptions=NextAuth({
             if(!result){
                 throw new Error("wrong password, pls try again")
             }
-            return user
-        } 
-        
-        catch (error:any) {
-            console.log("failed to connect to database", error.message)
-            throw new Error(error.message || error.toString() || "Unknown error")
-        }
-        // const response = await fetch(request)
-        // if (!response.ok) return null
-        // return (await response.json()) ?? null
-      }
-    }),
+            console.log("🔍 Authorize function called with:", {
+          username: credentials?.email,
+          password: credentials?.password,
+          requestMethod: request.method, // This will be POST
+          requestUrl: request.url
+        })
+         // Return user object (this will be stored in the JWT/session)
+          // Don't include sensitive data like password
+            return user // 👈 this object goes into jwt() as `user`
+}
+    
+    catch (error:any) {
+        console.log("failed to connect to database", error.message)
+        throw new Error(error.message || error.toString() || "Unknown error")
+    }
+    // const response = await fetch(request)
+    // if (!response.ok) return null
+    // return (await response.json()) ?? null
+  }}
+),
   ],
+  // To enable custom pages add the following to your Auth.js configuration. 
+  // In the pages object, the key is the type of page and the value is the path/route at which the 
+  // page is located. Please make sure you actually have a page at the specified route.
+  pages:{
+    signIn:'/sign-in'
+  },
+  session:{
+    strategy:"jwt"
+  },
+  secret:process.env.AUTH_SECRET,
+  // These are just functions that 
+  //   NextAuth calls for you at specific moments — and you write what you want them to do.
+  callbacks:{
+      async jwt({ token, user }) {
+    if (user) {
+      token.id = user.id;
+      token.username = user.name;
+      token.email=user.email;
+      //never send passord or sensistive data
+    }
+    return token;
+  },
+  async session({ session, token }) {
+    session.user.id = token.id;
+    session.user.role = token.role;
+    return session;
+  },
+  }
 }
 )
 

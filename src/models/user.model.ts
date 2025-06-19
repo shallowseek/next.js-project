@@ -83,7 +83,7 @@ const UserSchema: Schema<User> = new Schema({
     type: String,
     required: true
   },
-  veifyCodeExpires: {
+  verifyCodeExpires: {
     type: Date,
     required: true
   },
