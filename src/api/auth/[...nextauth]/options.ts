@@ -108,17 +108,29 @@ export const authOptions=NextAuth({
   //   NextAuth calls for you at specific moments — and you write what you want them to do.
   callbacks:{
       async jwt({ token, user }) {
+//        The user object is whatever you returned from authorize().
+
+// TypeScript only thinks it’s an object of type User (from next-auth interface).
+
+// But JavaScript doesn't care about TypeScript — so at runtime, it uses the actual values you returned.
     if (user) {
-      token.id = user.id;
-      token.username = user.name;
+      token._id = user._id?.toString();//so that it gets converted into string from object//
+      token.username = user.username;
+      token.isVerified = user.isVerified;
       token.email=user.email;
+      token.isAcceptingMessages=user.isAcceptingMessages
+
       //never send passord or sensistive data
     }
     return token;
   },
   async session({ session, token }) {
-    session.user.id = token.id;
-    session.user.role = token.role;
+    if(token){
+      session.user._id=token._id;
+      
+
+    }
+   
     return session;
   },
   }
