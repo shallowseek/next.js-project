@@ -1,6 +1,6 @@
 import { sendVerificationEmail } from "@/helpers/sendVerificationEmail";
-import dbConnect from "../../lib/dbConnect";// we have to connect database on every route//
-import UserModel from "../../models/user.model";
+import dbConnect from "../../../lib/dbConnect";// we have to connect database on every route//
+import UserModel from "../../../models/user.model";
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 

@@ -19,7 +19,9 @@
 
 // we are going for credentialas provider
 
-import NextAuth from "next-auth"
+import NextAuth, { type NextAuthConfig } from "next-auth";
+
+
 import Credentials from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"// to verify the password he will provide//
 import dbConnect from "@/lib/dbConnect"// to establsih connection to database
@@ -27,7 +29,7 @@ import UserModel from "@/models/user.model"// to verify that signing user is eve
 // import { MongoDBAdapter } from "@auth/mongodb-adapter";
 
 
-export const authOptions=NextAuth({
+export const authOptions: NextAuthConfig  = {
 //     The NextAuthOptions interface includes properties like:
 
 // providers - authentication providers (Google, GitHub, etc.)
@@ -115,6 +117,7 @@ export const authOptions=NextAuth({
 // But JavaScript doesn't care about TypeScript — so at runtime, it uses the actual values you returned.
     if (user) {
       token._id = user._id?.toString();//so that it gets converted into string from object//
+      // “If user is not null or undefined, then access _id”
       token.username = user.username;
       token.isVerified = user.isVerified;
       token.email=user.email;
@@ -127,6 +130,14 @@ export const authOptions=NextAuth({
   async session({ session, token }) {
     if(token){
       session.user._id=token._id;
+      // TypeScript never prevents your object from having a property. 
+      // It only complains when you access a property that it doesn't know about.
+      session.user.isVerified = token.isVerified;
+      session.user.isAcceptingMessages = token.isAcceptingMessages;
+      session.user.username=token.username;
+      // session.user.email=token.email;
+
+
       
 
     }
@@ -135,7 +146,7 @@ export const authOptions=NextAuth({
   },
   }
 }
-)
+
 
 
 

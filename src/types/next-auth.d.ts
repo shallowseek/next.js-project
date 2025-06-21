@@ -11,6 +11,7 @@ declare module 'next-auth'{
     username?: string;
     isVerified?:boolean;
     isAcceptingMessages?:boolean;
+    email:string;
 
 
     }
@@ -24,10 +25,18 @@ declare module 'next-auth'{
 //       ✅ You’re extending the default user object in the session, keeping NextAuth’s fields (name, email, image) AND adding your own (_id, username, etc.).
 
 // ❌ You are not replacing the whole thing, which is a common mistake.
-        user: User & DefaultSession["user"];//==>>This is a TypeScript utility trick. It means:
+        user:   {
+          _id?: string; // or Types.ObjectId
+    username?: string;
+    isVerified?:boolean;
+    isAcceptingMessages?:boolean;
+    }
+
+
+    & DefaultSession["user"];}//==>>This is a TypeScript utility trick. It means:
 
     // "Take the default user shape that NextAuth provides, and merge it with my custom User fields."
-    }
+    
     //     user: {
     // _id?: string; // or Types.ObjectId or //user:User;
     // // But:
