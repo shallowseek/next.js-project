@@ -22,7 +22,7 @@
 import NextAuth, { type NextAuthConfig } from "next-auth";
 
 
-import Credentials from "next-auth/providers/credentials"
+import CredentialsProvider from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"// to verify the password he will provide//
 import dbConnect from "@/lib/dbConnect"// to establsih connection to database
 import UserModel from "@/models/user.model"// to verify that signing user is even registered in databse//
@@ -40,7 +40,7 @@ export const authOptions: NextAuthConfig  = {
 // And many others.
 
   providers: [
-    Credentials({// Credentials is a method
+    CredentialsProvider({// Credentials is a method
          // This name appears on the sign in form button (e.g. "Sign in with credentials")
       name: "credentials",
       id:"1",
@@ -52,7 +52,8 @@ export const authOptions: NextAuthConfig  = {
       },
             // This function is called when user submits the sign-in form
       // It receives the credentials from the form submission
-      authorize: async function(credentials:any, request:any):Promise<any> {
+      // authorize: async function(credentials:any, request:any):Promise<any> {
+        async authorize(credentials:any, request:any):Promise<any>{ 
         // It's a callback function that handles the actual authentication logic for credential-based login.
         await dbConnect()
         try {
@@ -71,7 +72,7 @@ export const authOptions: NextAuthConfig  = {
             }
             //now if user is found , we will validate password
             const password = user.password// will return encrypted password
-            const result = bcrypt.compare(credentials.password, password)
+            const result = await bcrypt.compare(credentials.password, password)
             if(!result){
                 throw new Error("wrong password, pls try again")
             }
@@ -101,11 +102,19 @@ export const authOptions: NextAuthConfig  = {
   // page is located. Please make sure you actually have a page at the specified route.
   pages:{
     signIn:'/sign-in'
+    // "Hey Auth.js, when someone calls signIn(), 
+     //  send them to MY page, not your default form"
+
+//      /api/auth/signin ✅ Exists (Auth.js default form)
+// /api/sign-in ❌ Does NOT exist in your code
+// /sign-in ✅ Exists (your custom page)
   },
   session:{
     strategy:"jwt"
   },
   secret:process.env.AUTH_SECRET,
+  
+  
   // These are just functions that 
   //   NextAuth calls for you at specific moments — and you write what you want them to do.
   callbacks:{

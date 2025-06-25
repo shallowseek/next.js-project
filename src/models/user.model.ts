@@ -61,6 +61,7 @@ export interface User extends Document {
 // extends Document - interface inheritance
 
 const UserSchema: Schema<User> = new Schema({
+  // Generics are like templates or placeholders for types:
   name:{
     type: String,
     required: true,

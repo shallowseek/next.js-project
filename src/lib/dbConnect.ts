@@ -19,7 +19,7 @@ async function dbConnect(): Promise<void>
 
     }
     try {
-        const db =  await mongoose.connect(process.env.MONGODB_URI || '', {})
+        const db =  await mongoose.connect("mongodb+srv://gaurjatin71:RzJzaZamyTBxkdT5@cluster0.sxybbj9.mongodb.net/feedback?retryWrites=true&w=majority" || '', {})
         console.log("this is the data connection we got from mongo db",db)
                 // ✅ Update the OUTER connection object (not create a new variable)
         connection.isConnected = db.connections[0].readyState // Note: connections (plural)

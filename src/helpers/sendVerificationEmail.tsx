@@ -31,7 +31,7 @@ export async function sendVerificationEmail(
       react: VerificationEmail({ username: username, otp:verifyCode }),
     });
     console.log("here is the data we got",data)
-     return {success:false, message:"Verification email sent successfully",}
+     return {success:true, message:"Verification email sent successfully",}
     
   } catch (error) {
     console.error(error)

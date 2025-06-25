@@ -24,11 +24,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <AuthProvider>
+      <AuthProvider>{/* <-- All pages below get access to session */}
           <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+
       >
         {children}
+        {/* All pages go here */}
       </body>
       </AuthProvider>
     

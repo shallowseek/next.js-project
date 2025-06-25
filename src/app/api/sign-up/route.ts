@@ -4,6 +4,11 @@ import UserModel from "../../../models/user.model";
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
+
+export async function GET() {
+  return Response.json({ method: "GET" });
+}
+
 export async function POST(request:Request){
     await dbConnect()
 
@@ -81,7 +86,7 @@ export async function POST(request:Request){
         console.log("this is the email response from resend-email",emailResponse)
         if(!emailResponse.success){
             return Response.json({
-                sucess:false,
+                success:false,
                 message:emailResponse.message
             },{status:500})
 
@@ -106,7 +111,7 @@ export async function POST(request:Request){
 // }
         }
         return Response.json({
-                sucess:true,
+                success:true,
                 message:"user registered succesfully"
             },{status:200})
 
