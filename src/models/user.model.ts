@@ -99,7 +99,7 @@ const UserSchema: Schema<User> = new Schema({
         default: false
     },
   messages: [MessageSchema] // This means the User can have multiple messages
-  // Each message will follow the structure defined in the Message interface
+  // Each message will follow the structure defined in the Message schema
 
 
 
