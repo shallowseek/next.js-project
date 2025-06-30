@@ -1,5 +1,10 @@
 import mongoose, {Schema,Document,Types} from 'mongoose';
+// Because Mongoose automatically handles the Document part — and TypeScript knows this.
 
+// So TypeScript's behavior is:
+
+//     “I’ll only check that the fields you provide in the schema (like content, timestamp) match the ones in the Message interface.
+//     But I’ll ignore the Document fields (_id, save(), etc.) — because Mongoose adds those automatically.”
 
 export interface Message extends Document
 // The Message interface will have:
@@ -32,6 +37,11 @@ const MessageSchema:Schema<Message> = new Schema({
         default: Date.now
     }
     }
+//     You're saying:
+
+//     “This schema defines the shape of documents. That shape should follow the Message interface.”
+
+// But this only defines what fields a document should have — it does not create any documents yet.
  
 )
 
@@ -208,3 +218,29 @@ export default UserModel;
 // ```
 
 // **So extending Document gives your Message all the MongoDB superpowers!**
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

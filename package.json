@@ -10,18 +10,22 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^1.3.22",
+    "@ai-sdk/react": "^1.2.12",
     "@react-email/components": "^0.1.0",
+    "ai": "^4.3.16",
     "auth-js": "^0.0.16",
     "bcryptjs": "^3.0.2",
     "mongodb": "^6.17.0",
     "mongoose": "^8.15.2",
     "next": "15.3.3",
     "next-auth": "^5.0.0-beta.28",
+    "openai": "^5.8.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-email": "^4.0.16",
     "resend": "^4.6.0",
-    "zod": "^3.25.64"
+    "zod": "^3.25.67"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
