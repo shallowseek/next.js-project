@@ -45,6 +45,6 @@ export default function Home() {
     </Carousel>
     </main>
   
-    <footer className="txt-center p-4 md:p-6"> 2023 Mystery Message.All rights reserved.</footer>
+    <footer className="text-center p-4 md:p-6"> 2023 Mystery Message.All rights reserved.</footer>
     </>
   )}
