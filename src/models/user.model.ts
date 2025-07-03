@@ -19,6 +19,7 @@ export interface Message extends Document
 // Message is the child interface that gets everything from Document plus its own stuff
 
 {
+  _id: Types.ObjectId;
   content: string;
   timestamp: Date;
 }
@@ -47,8 +48,8 @@ const MessageSchema:Schema<Message> = new Schema({
 
 
 export interface User extends Document {
-     
-    name: string;
+    _id: Types.ObjectId; 
+  name: string;
   username: string;
   email: string;
   password: string;

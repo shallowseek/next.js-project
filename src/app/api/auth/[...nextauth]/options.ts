@@ -19,7 +19,7 @@
 
 // we are going for credentialas provider
 
-import NextAuth, { type NextAuthConfig } from "next-auth";
+import type { NextAuthOptions } from "next-auth"
 
 
 import CredentialsProvider from "next-auth/providers/credentials"
@@ -29,7 +29,7 @@ import UserModel from "@/models/user.model"// to verify that signing user is eve
 // import { MongoDBAdapter } from "@auth/mongodb-adapter";
 
 
-export const authOptions: NextAuthConfig  = {
+export const authOptions: NextAuthOptions = {
 //     The NextAuthOptions interface includes properties like:
 
 // providers - authentication providers (Google, GitHub, etc.)
@@ -43,7 +43,7 @@ export const authOptions: NextAuthConfig  = {
     CredentialsProvider({// Credentials is a method
          // This name appears on the sign in form button (e.g. "Sign in with credentials")
       name: "credentials",
-      id:"1",
+      id: "credentials",
       credentials: {
         // The lowercase credentials is a property/field definition object that tells
         //  Auth.js what input fields to show on the login form and how to handle them.
@@ -54,27 +54,32 @@ export const authOptions: NextAuthConfig  = {
       // It receives the credentials from the form submission
       // authorize: async function(credentials:any, request:any):Promise<any> {
         async authorize(credentials:any, request:any):Promise<any>{ 
+           console.log("🧠 AUTHORIZE CALLED with credentials:", credentials); // <- Put this here first!
         // It's a callback function that handles the actual authentication logic for credential-based login.
         await dbConnect()
+        console.log("database started")
         try {
             const user = await UserModel.findOne({
                 $or:[
                     {email:credentials.email},
-                    {username:credentials.username}
+                    // {username:credentials.username}
                 ]
             })
             if(!user){
-                throw new Error("no username/email found")
+                // throw new Error("no username/email found")
+                return null
             }
             //now we will check if user is registered but not verified
             if(!user.isVerified){
-                throw new Error("not verified, please verify your account")
+                // throw new Error("not verified, please verify your account")
+                return null
             }
             //now if user is found , we will validate password
             const password = user.password// will return encrypted password
             const result = await bcrypt.compare(credentials.password, password)
             if(!result){
-                throw new Error("wrong password, pls try again")
+                // throw new Error("wrong password, pls try again")throw new Error("Invalid credentials")  // ❌ this triggers redirect to `/api/auth/error`
+                 return null; // ✅ this tells NextAuth to return error in result, not redirect
             }
             console.log("🔍 Authorize function called with:", {
           username: credentials?.email,
@@ -84,12 +89,20 @@ export const authOptions: NextAuthConfig  = {
         })
          // Return user object (this will be stored in the JWT/session)
           // Don't include sensitive data like password
-            return user // 👈 this object goes into jwt() as `user`
+           return {
+  _id: user._id.toString(),
+  username: user.username,
+  email: user.email,
+  isVerified: user.isVerified,
+
+  isAcceptedMessage: user.isAcceptedMessage, // ✅ correct key spelling
+};
 }
     
     catch (error:any) {
-        console.log("failed to connect to database", error.message)
-        throw new Error(error.message || error.toString() || "Unknown error")
+          console.log("failed to connect to database", error.message)
+    // ✅ Return null instead of throwing error
+    return null; // This will give you result.error = "CredentialsSignin"
     }
     // const response = await fetch(request)
     // if (!response.ok) return null
@@ -101,7 +114,8 @@ export const authOptions: NextAuthConfig  = {
   // In the pages object, the key is the type of page and the value is the path/route at which the 
   // page is located. Please make sure you actually have a page at the specified route.
   pages:{
-    signIn:'/sign-in'
+    signIn:'/sign-in',
+    error: "/sign-in"    // redirect back to login on error
     // "Hey Auth.js, when someone calls signIn(), 
      //  send them to MY page, not your default form"
 
@@ -130,7 +144,7 @@ export const authOptions: NextAuthConfig  = {
       token.username = user.username;
       token.isVerified = user.isVerified;
       token.email=user.email;
-      token.isAcceptingMessages=user.isAcceptingMessages
+        token.isAcceptedMessage = user.isAcceptedMessage; // ✅ fix spelling
 
       //never send passord or sensistive data
     }
@@ -142,18 +156,18 @@ export const authOptions: NextAuthConfig  = {
       // TypeScript never prevents your object from having a property. 
       // It only complains when you access a property that it doesn't know about.
       session.user.isVerified = token.isVerified;
-      session.user.isAcceptingMessages = token.isAcceptingMessages;
+      session.user.isAcceptedMessage = token.isAcceptedMessage; // ✅
       session.user.username=token.username;
       // session.user.email=token.email;
-
-
-      
 
     }
    
     return session;
   },
-  }
+    
+
+  },
+  debug: true, // logs all NextAuth internals to terminal
 }
 
 

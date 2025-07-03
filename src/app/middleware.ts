@@ -12,6 +12,7 @@ import { getToken } from "next-auth/jwt";
 
 
 export async function middleware(request: NextRequest) {
+    console.log("🔄 Middleware triggered for:", request.nextUrl.pathname);
 //   token will be null if the user is not logged in.
 
 // If logged in, token contains fields like _id, username, email, etc.

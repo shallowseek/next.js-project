@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
 
+
 export async function GET() {
   return Response.json({ method: "GET" });
 }

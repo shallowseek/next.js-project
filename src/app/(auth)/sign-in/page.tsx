@@ -1,133 +1,206 @@
 'use client'
-import { useSession, signIn, signOut } from "next-auth/react"
-// 1. User visits: /sign-in
-//    ↓ Next.js App Router handles this
-// 2. Your React component renders
-//    ↓ User clicks "Sign in" button  
-// 3. signIn() function calls: /api/auth/signin
-//    ↓ Auth.js handlers handle this API call
-// 4. Auth.js processes authentication
-//    ↓ Success/failure response
-// 5. Your React component updates based on session
-// /sign-in = Your frontend page (React component)
-// /api/auth/signin = Auth.js backend API (authentication processing)
+import { useSession, signIn, signOut, getSession } from "next-auth/react"
+import react,{useState} from 'react';
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import * as z from "zod";
+import { useRouter } from 'next/navigation';
+import { signInSchema } from '../../../schemas/signInSchema';
+import axios, { AxiosError } from 'axios'
+import { ApiResponse } from '@/types/ApiResponse';
+import { Button } from '../../components/ui/button';
+import { Loader2, LoaderCircleIcon } from "lucide-react";
+import type { SignInResponse } from "next-auth/react";
+import Link from 'next/link'
+import {
+  Form,
+  FormControl,
 
-// So Next.js App Router handles the GET request to /sign-in by rendering your 
-// React component, while Auth.js only handles requests to /api/auth/* routes!
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "../../components/ui/form"
+import { Input } from "../../components/ui/input"
+export default function Page() {
+    const { data: session, update } = useSession()
+    const [isSubmitting, setisSubmitting] = useState(false)
+    const [error, setError] = useState("")
+    const [mail,setMail]= useState("");
+   
+    const router = useRouter()
 
-
-
-export default function Component() {
-  const { data: session } = useSession()
-  //useSession() returns an object like this//
-//   {
-//   data: Session | null,
-//   status: "authenticated" | "unauthenticated" | "loading"
+    //zod schema
+    const form = useForm <z.infer<typeof signInSchema>>({
+      // typeof signUpSchema = ZodObject<{username: ZodString, email: ZodString, ...}>
+      // z.infer<typeof signUpSchema> becomes:(This extracts/infers what TypeScript type the schema would produce when validated:)
+// type SignUpData = {
+//   username: string;
+//   email: string;
+//   password: string;
 // }
-  if (session) {
-    return (
-      <>
-        Signed in as {session?.user?.email} <br />
-        <button onClick={() => signOut()}>Sign out</button>
-      </>
-    )
-  }
-  return (
-    <>
-      Not signed in <br />
-      <button className="bg-orange-500" onClick={() => signIn()}>Sign in</button>
-    </>
-  )
+      resolver:zodResolver(signInSchema),
+      defaultValues:{
+        
+        email:'',
+        password:'',
+      }
+    })// returns tools objects//
+    // useRouter() gives you access to the router object inside your React components.
+    // In react-hook-form, the resolver is an optional function you can pass to useForm()
+    //  that lets you use an external validation library (like Zod, Yup, Joi, etc.) for form validation.
+
+
+    //
+
+
+
+
+
+
+
+
+//now submit logic//
+//react hook form gives us submitHandler but it does not submit rather we have to extract value from it //
+
+
+
+    const onSubmit = async (data: z.infer<typeof signInSchema>) => {
+      console.log("Submitting data:", data);
+      setisSubmitting(true);
+      setError(""); // Clear previous errors
+      
+      try {
+     const result = await signIn('credentials', {
+  email: data.email,
+  password: data.password,
+  redirect: false,
+});
+        console.log("SignIn result:", result);
+
+        if (result?.error) {
+          console.log("Login failed:", result.error);
+          setError("Invalid email or password");
+        } else if (result?.ok) {
+          // Wait for session to update
+          await update();
+          
+          // Get fresh session data
+          const updatedSession = await getSession();
+          console.log("Updated session:", updatedSession);
+          
+          const userId = updatedSession?.user?._id;
+          if (userId) {
+            router.replace(`/dashboard/${userId}`);
+          } else {
+            router.replace('/dashboard');
+          }
+        } else {
+          setError("Login failed. Please try again.");
+        }
+      } catch (error) {
+        router.replace('/dashbaord')
+        console.error("SignIn error:", error);
+        setError("An unexpected error occurred. Please try again.");
+      } finally {
+        setisSubmitting(false);
+      }
+    }
+
+
+
+if(session){
+    const userId = session.user?._id;
+        if (userId) {
+            router.replace(`/dashboard/${userId}`);
+        } else {
+            router.replace('/dashboard');
+        }
+        return null;
 }
 
+else{
+    //for user with who we don''t have  establish session yet//
+
+    
+    return (
+    <>
+     {/* // You must manually call signIn('credentials', { email, password }) to:
+    // Send a POST request to /api/auth/callback/credentials
+    // Trigger the authorize() function in your Credentials Provider. */}
+      {/* Not signed in <br />
+      <button className="bg-orange-500" onClick={() => signIn()}>Sign in</button> */}
+        <div className='"flex justify-center items-center h-72 bg-gray-100 ml-100'>
+      <div className='w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md'>
+      <div className='text-center'>
+        <h1 className='text-4xl font-extrabold tracking-tight lg:text-5xl mb-6'>
+          Join Mystery Message
+        </h1>
+        <p className='mb-4'>Sign in to start your anonymus adventures</p>
+      </div>
+      <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Email</FormLabel>
+              <FormControl>
+                <Input placeholder="email...." {...field}
+                value={mail}
+                onChange={(e)=>{
+                  setMail(e.target.value)
+                  field.onChange(e)
+
+                }} />
+              </FormControl>
+             
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
 
 
-
-// Ah, excellent catch! You're absolutely right. Let me clarify what happens with your configuration:
-
-// ## Your Configuration:
-// ```typescript
-// pages: {
-//   signIn: '/sign-in' // This tells Auth.js where YOUR custom page is
-// }
-// ```
-
-// ## What happens when you call `signIn()`:
-
-// ### Scenario 1: `signIn()` with no parameters
-// ```typescript
-// // In your component:
-// <button onClick={() => signIn()}>Sign in</button>
-// ```
-
-// **Flow:**
-// 1. `signIn()` is called
-// 2. Auth.js sees you have `pages.signIn: '/sign-in'` configured
-// 3. **Auth.js redirects browser to `/sign-in`** (your custom page)
-// 4. Your React component renders
-// 5. User sees your custom signin form
-
-// ### Scenario 2: `signIn()` with credentials
-// ```typescript
-// // If you had a form with actual credentials:
-// signIn('credentials', {
-//   email: 'user@example.com', 
-//   password: 'password123'
-// })
-// ```
-
-// **Flow:**
-// 1. `signIn()` makes **POST request to `/api/auth/signin/credentials`**
-// 2. Your Auth.js handler processes the credentials
-// 3. Your `authorize()` function validates the user
-// 4. Auth.js creates session and redirects
-
-// ## The Key Point:
-
-// ```typescript
-// pages: {
-//   signIn: '/sign-in'
-// }
-// ```
-
-// This tells Auth.js: **"Don't show your default signin form, redirect users to MY custom page instead"**
-
-// ## What your current setup does:
-
-// ```
-// 1. User clicks signIn() → Auth.js redirects to /sign-in
-// 2. /sign-in shows your React component  
-// 3. User clicks signIn() again → Still redirects to /sign-in
-// 4. Infinite loop of showing the same page!
-// ```
-
-// ## To fix this, you'd typically have:
-
-// ```typescript
-// // A proper signin form in your custom page:
-// export default function SignInPage() {
-//   const [email, setEmail] = useState('')
-//   const [password, setPassword] = useState('')
-  
-//   const handleSubmit = async (e) => {
-//     e.preventDefault()
-//     // This actually submits credentials
-//     const result = await signIn('credentials', {
-//       email,
-//       password,
-//       redirect: false
-//     })
-//   }
-  
-//   return (
-//     <form onSubmit={handleSubmit}>
-//       <input value={email} onChange={(e) => setEmail(e.target.value)} />
-//       <input value={password} onChange={(e) => setPassword(e.target.value)} />
-//       <button type="submit">Sign In</button>
-//     </form>
-//   )
-// }
-// ```
-
-// So `signIn()` **redirects to your page**, it doesn't call the API directly unless you provide credentials!
+       
+        <FormField
+          control={form.control}
+          name="password"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Password</FormLabel>
+              <FormControl>
+                <Input placeholder="password...." {...field} />
+              </FormControl>
+             
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        {error &&  <p>
+            Wrong Credentials{' '} </p>}
+         <Button type="submit">Sign-In
+        
+        
+                </Button>
+      </form>
+    </Form>    
+     <div className="text-center mt-4">
+              <p>
+                Not a Member?{' '}
+                {/* In React's JSX syntax, {' '} means "insert a literal space character here". */}
+                <Link href="/sign-up" className="text-blue-600 hover:text-blue-800">
+                        Sign Up
+                </Link>
+              </p>
+    
+    
+        </div>
+      
+      
+      </div>
+      </div>
+    </>
+  )
+}}

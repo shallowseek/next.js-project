@@ -25,16 +25,19 @@ export async function GET(request:Request){
     //     }
     
     await dbConnect()
-
+    console.log("database connected")
     try {
         // const url = new URL(request.url)
         const {searchParams} = new URL(request.url)
+        
+        console.log("this is the request url",request.url)
         // searchParams.get("username");
         // A string representing the value of the specified query parameter.
         //but we have definex zod schema for username as object so//
         const queryParam={
             username: searchParams.get("username")
         }
+        console.log(queryParam.username)
         //vallidating the object we have made//
         const result = usernameQuerySchema.safeParse(queryParam)
         console.log("this is the reuslt we got after zod validation",result)
@@ -59,12 +62,14 @@ export async function GET(request:Request){
             },{status:400})
 
         }
+        else{
+            console.log("after due diligence this is what we got")
         return Response.json({
                 // This is a Next.js helper method available in the App Router (app/) that simplifies returning JSON responses.
                 success:true,
                 message:"username is available"
             },{status:200})
-        
+        }
 
         
     } catch (error) {
