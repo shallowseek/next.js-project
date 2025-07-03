@@ -2,7 +2,7 @@
 import { useSession, signIn, signOut, getSession } from "next-auth/react"
 import react,{useState} from 'react';
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
+import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { useRouter } from 'next/navigation';
 import { signInSchema } from '../../../schemas/signInSchema';

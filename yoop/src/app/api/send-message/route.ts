@@ -1,7 +1,7 @@
 import getServerSession  from "next-auth";
-import { authOptions } from "../auth/[...nextauth]/optio"
-import UserModel from "@/models/user.model"
-import { Message } from "@/models/user.model";
+import { authOptions } from "../auth/[...nextauth]/options"
+import UserModel from "../../../model/user.model"
+import { Message } from "../../../model/user.model";
 import dbConnect from "@/lib/dbConnect"
 import { User, Session } from "next-auth"
 import { timeStamp } from "console";

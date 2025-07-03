@@ -1,5 +1,5 @@
 import dbConnect from "@/lib/dbConnect";
-import UserModel from "@/models/user.model";
+import UserModel from "../../../model/user.model";
 import {z} from "zod"
 import { verifySchema } from "@/schemas/verifySchema";
 

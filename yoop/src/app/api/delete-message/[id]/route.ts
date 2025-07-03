@@ -3,7 +3,7 @@ import  getServerSession  from "next-auth";
 // It is used on the server-side (like inside API routes, middleware, or server components) to get the current user's session.
 // It reads the cookies from the request and validates the session using the authOptions.
 import { authOptions } from "../../auth/[...nextauth]/options"
-import UserModel from "@/models/user.model"
+import UserModel from "../../../../model/user.model"
 import dbConnect from "@/lib/dbConnect"
 import { User, Session } from "next-auth"
 import mongoose, { trusted } from "mongoose";

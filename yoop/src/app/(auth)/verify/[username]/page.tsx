@@ -48,7 +48,10 @@ const onSubmit = async (data:z.infer<typeof verifySchema>)=>{
         //first we will verify submitted dat through zod by giving data type as verifySchema object//
         
      
-          const response = await axios.post<ApiResponse>('/api/verify-code/', {username:`${param.username}`, code:data.code})
+          const response = await axios.post<ApiResponse>('/api/verify-code/', {  username: param.username, code:data.code})
+//           The second argument in axios.post(url, data, config) is the body, which we are setting to null here because you'
+//           re not sending any body.
+// The third argument is the Axios config, where we pass params.
           console.log("this is what we got as response",response.data)
           Response.json({
             message:"your code is verified",
@@ -71,8 +74,9 @@ const onSubmit = async (data:z.infer<typeof verifySchema>)=>{
         
 
   return (
-    <div className="flex justify-center items-center  bg-gray-100 ml-100 w-full max-w-md p-8 space-y-8  rounded-lg shadow-md mt-50">
-        <h1>Verification Code</h1>
+    <div className="flex justify-center items-center  ml-100 w-full max-w-md p-8 space-y-8  rounded-lg shadow-md mt-50">
+        <h1>Verification Code:</h1>
+        <br/>
        <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <FormField
@@ -94,7 +98,7 @@ const onSubmit = async (data:z.infer<typeof verifySchema>)=>{
             </FormItem>
           )}
         />
-        <Button type="submit">Submit</Button>
+        <Button type="submit" className='text-black bg-white'>Submit</Button>
       </form>
     </Form>
   
