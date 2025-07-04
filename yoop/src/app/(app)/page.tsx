@@ -30,7 +30,7 @@ export default function Home() {
         {messages.map((message, index)=>(
           <CarouselItem key={index}>
             <div className="p-1">
-              <Card>
+              <Card className="bg-black text-white">
                 <CardHeader>{message.title}</CardHeader>
                 <CardContent className="flex aspect-square items-center justify-center p-6">
                   <span className="text-lg font-semibold">{message.content}</span>

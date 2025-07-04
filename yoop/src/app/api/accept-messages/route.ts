@@ -1,4 +1,4 @@
-import getServerSession  from "next-auth";
+import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/options"
 import UserModel from "../../../model/user.model"
 import dbConnect from "@/lib/dbConnect"
@@ -13,7 +13,8 @@ export async function POST(request:Request){
 
     //1. get current logged in user
     // const session :any = await getServerSession(authOptions) as Session | null
-     const session :any = await getServerSession(authOptions) 
+       const session: any = await getServerSession(authOptions);
+     console.log("got the session", session.user)
     const user = session?.user
     if(!session || !session.user){
                 return Response.json({
@@ -35,7 +36,7 @@ export async function POST(request:Request){
              return Response.json({
             success:false,
             message:"no user found"
-        }, { status: 401 })
+        }, { status: 410 })
             
         } else {
              return Response.json({
@@ -64,6 +65,31 @@ export async function GET(request:Request){
   
     
     await dbConnect()
+    const url = new URL(request.url)
+    //creating url obbject from URL class
+     const username = url.searchParams.get("username"); // ✅ This works
+     if(username){
+        try {
+            const user= await UserModel.findOne({
+                username
+            })
+            if(user){
+                return Response.json({user},{status:200})
+            }
+             return Response.json(
+                {message:"no user found"},
+                {status:400},
+            )
+            
+        } catch (error) {
+            console.log(error)
+            return Response.json(
+                {message:"connection failed"},
+                {status:500}
+            )
+            
+        }
+     }
 
     //1. get current logged in user
     const session:any = await getServerSession(authOptions)

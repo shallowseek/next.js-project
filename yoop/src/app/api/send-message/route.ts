@@ -15,19 +15,22 @@ export async function POST(request:Request){
     await dbConnect()
 
 
-    const{username, content}= await request.json();
+    const{id, content}= await request.json();
+    console.log("this is the id of user",id)
     try {
         //first we will find user in databse//
-        const user = await UserModel.findOne({username});
+        const user = await UserModel.findOne({_id:id});
         //if no user//
         if(!user){
             return Response.json(
                 {success:false,
-                message:"please register first"
+                message:"user is not registered"
                 },{status:401})
         }
         // check if user is accepting messages//
-        if(!user.isAcceptedMessage){
+        console.log("this is to see whther user is accepting message",user.isAcceptedMessage)
+        console.log("Full user object:", user.toObject());
+        if(user.isAcceptedMessage !== true){
              return Response.json(
                 {success:false,
                 message:"user is not accepting message"
@@ -52,15 +55,20 @@ export async function POST(request:Request){
 // But your object has only content and timestamp, hence the error.
 
 
-            await user.messages.push(newMessage as Message)
+          const newUser =  await UserModel.findByIdAndUpdate(
+                                id,
+                                { $push: { messages: newMessage } },
+                                { new: true }
+                                )
+            //push return old document is new:true is not set//
             // Since Message is used as a subdocument inside the User schema, you should not assign 
             // Message as a type manually. Let Mongoose handle it when you push it into the user’s
             //  messages array:
-            await user.save()
+            // await newUser?.save()
              return Response.json(
                 {success:true,
                 message:"messg seent successfully"
-                },{status:201})
+                },{status:200})
 
 
 

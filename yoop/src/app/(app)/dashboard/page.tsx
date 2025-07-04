@@ -99,6 +99,7 @@ const handleSwitchChange = async()=>{
     try {
         const response = await axios.post<ApiResponse>("/api/accept-messages",data)
         if(response.status===200){
+            console.log("we got the value")
             form.setValue('isAcceptedMessage',response?.data?.isAcceptingMessages??false)
             
         }
@@ -108,10 +109,10 @@ const handleSwitchChange = async()=>{
 
 }
 
-const{username} = session?.user as User
+const username = session?.user?.username ?? ''
 // To get the current URL in a client component in Next.js, you can use the built-in usePathname()
 //  and useSearchParams() hooks from next/navigation, or use the native window.location.
-const baseUrl = `${window.location.protocol}/${window.location.host}/`
+const baseUrl = `${window.location.protocol}/${window.location.host}`
 const profileUrl = `${baseUrl}/u/${username}`
 
 
@@ -128,7 +129,7 @@ if(!session || !session.user){
     return(<><h1>Please Login</h1></>)
 }
 else{return (
-    <div className='my-8 mx-4 md:mx-8 lg:mx-auto p-6 bg-white rounded w-full max-w-6xl'>
+    <div className='my-8 mx-4 md:mx-8 lg:mx-auto p-6 rounded w-full max-w-6xl'>
         <h1 className='text-4xl font-bold mb-4'>User Dashboard</h1>
 
         <div className='mb-4'>
@@ -140,7 +141,7 @@ else{return (
                 value={profileUrl} 
                 disabled
                 className='input input-bordered w-full p-2 mr-2'/>
-                <Button onClick={copyToClipboard}>Copy</Button>
+                <Button onClick={copyToClipboard} className='text-black bg-white hover:scale-105'>Copy</Button>
             </div>
         </div>
 
