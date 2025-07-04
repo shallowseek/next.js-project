@@ -38,6 +38,7 @@ const page = () => {
   const[available,setAvailable]= useState(false)
   const[isLoading,setIsLoading]=useState(false)
   const [showNotAcceptingError, setShowNotAcceptingError] = useState(false);
+  const[messages, setMessages] =useState([])
   
 
   useEffect(() => {
@@ -87,6 +88,13 @@ const page = () => {
 
     } else {
       setShowNotAcceptingError(true); // show red error line
+      toast("User does not allow message 😢", {
+          description: `${new Date(endTime).toLocaleString()}`,
+          action: {
+            label: "Undo",
+            onClick: () => console.log("Undo"),
+          },
+        });
     }
   } catch (error) {
     console.error("Failed to send message", error);
@@ -98,14 +106,27 @@ const page = () => {
 
 
 
+const aiMessage = async()=>{
+  try {
+    const result = await axios.get("/api/suggest-messages")
+    console.log(result?.data.text)
+    console.log("here is the text after applying split method",result.data.text.split("||"))
+    const arrayResponse = result.data.text.split("||")
+    setMessages(arrayResponse)
+
+  } catch (error) {
+    console.log(error)
+    
+  }
+}
+
 
 
 
   return (
     <div className="bg-black text-white">
       <div className="flex flex-col h-screen">
-  {/* Top Box - 1/2 height */}
-  <div className="relative h-5/8 border-b px-6 pt-6">
+  <div className="relative flex-[3] border-b px-6 pt-6">
     <div className="flex flex-col gap-4">
       <h2 className="text-center text-3xl font-bold">PUBLIC PROFILE LINK</h2>
       <div>
@@ -129,7 +150,7 @@ const page = () => {
         type="text"
         // name="message"
         placeholder="Love your personality"
-        className="w-full max-full px-4 py-2 border rounded-md text-white bg-black focus:outline-none focus:ring-2 focus:ring-blue-500
+        className="w-full max-full h-15 px-4 py-2 border rounded-md text-white bg-black focus:outline-none focus:ring-2 focus:ring-blue-500
         mb-4"
       />
       {/* Reset only after a delay
@@ -143,22 +164,56 @@ Or restore the last message on "Undo" */}
     >
       Send it
     </Button>
-  
+   
   </div>
-    </form>
+  </form>
+   
     </div>
 
     {/* Bottom-left button inside top box */}
-    <Button className="absolute bottom-4 left-6 bg-gray-200 text-black px-4 py-2 rounded-md hover:bg-gray-300">
+    <Button className="absolute bottom-4 left-6 bg-gray-200 text-black px-4 py-2 rounded-md hover:bg-gray-300"
+    onClick={aiMessage}>
     Suggest Messages
     </Button>
   </div>
 
   {/* Bottom Box - 1/2 height */}
-  <div className="h-3/8 p-6">
-    {/* Empty or future content */}
+  <div className="flex-[2] p-6">
+    {/* Empty or future content */}  {messages.length > 0 && (
+      <>
+      <p className='mt-0 mb-2'>Click on any message below to select it:-</p>
+      <div>
+        {messages.map((message, idx) => (
+          <div key={idx}>
+            <Button
+              className='text-white w-full mb-3'
+              value={message}
+              onClick={() => {
+                form.setValue("message", message);
+                console.log(form)
+              }}
+            >
+              {message}
+            </Button>
+          </div>
+        ))}
+      </div>
+      </>
+    )}
+     
   </div>
-</div></div>
+ 
+  {/* <div>
+    {/* {messages && messages.map((message)=>{
+      <p>{message}</p>
+    })} */}
+    
+  
+  </div> 
+
+</div>
+  
+
    
 
   )

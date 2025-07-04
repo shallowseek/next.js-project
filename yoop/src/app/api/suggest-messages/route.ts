@@ -1,41 +1,21 @@
 // src/app/api/suggest-messages/route.ts
-import OpenAI from 'openai';
+import { groq } from '@ai-sdk/groq';
 import { NextResponse } from 'next/server';
+import { generateText } from 'ai';
 
 
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY!,
-});
 
-export const maxDuration = 30;
 
-export async function POST(req: Request) {
-  try {
-    const response = await openai.chat.completions.create({
-  model: 'gpt-4o',
-  messages: [
-    { role: 'user', content: 'Say hello in a friendly way' },
-  ],
-});
-
-    return NextResponse.json({ response: response.choices[0].message });}
-  
-  
-  catch (error) {
-  console.error("FULL ERROR OBJECT:", error);
-  
-  if (error instanceof OpenAI.APIError) {
-    const { name, status, headers, message } = error;
-    return NextResponse.json({ name, status, headers, message });
-  } else {
-    return NextResponse.json({
-      error: 'An unexpected error occurred',
-      message: (error as any)?.message,
-      stack: (error as any)?.stack,
-    });
-  }
+export async function GET() {
+  const result = await generateText({
+    model: groq('qwen-qwq-32b'),
+    providerOptions: {
+      groq: { reasoningFormat: 'parsed' },
+    },
+    prompt: 'Create a list of four open-ended and engaging questions formatted as a single string.Each question should be seperated by "||".These questions are for an anonymous social messaging platform, like Qooh.me, and should be suitable for a diverse audience.Avoid personal or sensitive topics, focusing instead on universal themes that encourage friendly interaction.For example , your output should be structured like this: "What"s a hobby you have recently discovered?||If you could have dinner with any historical figure,who would it be?||WHAT"s a simple thing that makes you happy?".Ensure that questions are intriguing, foster curiosity, and contribute to a positive and welcoming conversational environemnt.'   
+  });// to later apply split and get an array//
+console.log("here is teh response we got from ai",result)
+  return NextResponse.json(result);
 }
-}
-
 
